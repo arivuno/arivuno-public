@@ -1,0 +1,9 @@
+node_modules/
+.output/
+.wxt/
+coverage/
+web-ext-artifacts/
+*.log
+.env
+.env.*
+!.env.example
