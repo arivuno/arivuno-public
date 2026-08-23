@@ -4,15 +4,75 @@ import {
 	parseShortsTarget,
 } from '../../src/youtube/shorts-url';
 import {checkNavigationAfterCommit} from '../../src/youtube/committed-navigation';
+import {
+	ACTIVATION_DOCUMENT_ATTRIBUTE,
+	ACTIVATION_STORAGE_KEY,
+	isEnabledActivationState,
+} from '../../src/activation/state';
 
 export default defineContentScript({
 	matches: ['https://www.youtube.com/*'],
 	runAt: 'document_start',
 	allFrames: false,
-	registration: 'manifest',
+	registration: 'runtime',
 	noScriptStartedPostMessage: true,
 
-	main(ctx) {
+	async main(ctx) {
+		let activated = false;
+		let activationChangedDuringRead = false;
+		const stop = (): void => {
+			browser.storage.onChanged.removeListener(onStorageChanged);
+
+			if (activated) {
+				document.documentElement.removeAttribute(ACTIVATION_DOCUMENT_ATTRIBUTE);
+			}
+
+			ctx.abort();
+		};
+		const onStorageChanged = (
+			changes: Record<string, Browser.storage.StorageChange>,
+			areaName: string,
+		): void => {
+			const change = changes[ACTIVATION_STORAGE_KEY];
+
+			if (areaName !== 'local' || change === undefined) {
+				return;
+			}
+
+			if (!activated) {
+				activationChangedDuringRead = true;
+				return;
+			}
+
+			if (!isEnabledActivationState(change.newValue)) {
+				stop();
+			}
+		};
+
+		browser.storage.onChanged.addListener(onStorageChanged);
+		ctx.onInvalidated(() => {
+			browser.storage.onChanged.removeListener(onStorageChanged);
+		});
+
+		try {
+			const result = await browser.storage.local.get(ACTIVATION_STORAGE_KEY);
+
+			if (
+				ctx.isInvalid ||
+				activationChangedDuringRead ||
+				!isEnabledActivationState(result[ACTIVATION_STORAGE_KEY])
+			) {
+				stop();
+				return;
+			}
+		} catch {
+			stop();
+			return;
+		}
+
+		activated = true;
+		document.documentElement.setAttribute(ACTIVATION_DOCUMENT_ATTRIBUTE, '');
+
 		const interrupt = (
 			input: string | URL,
 			historyMode: 'assign' | 'replace',

@@ -9,9 +9,13 @@ export default defineConfig({
 	manifest: {
 		name: 'Arivuno',
 		description:
-			'Remove YouTube Shorts entry points and interrupt Shorts pages before the feed opens.',
-		permissions: [],
+			'Remove YouTube Shorts entry points and redirect recognized Shorts pages to a local block screen.',
+		minimum_chrome_version: '105',
+		permissions: ['storage', 'scripting'],
 		host_permissions: [],
+		action: {
+			default_title: 'Manage Arivuno',
+		},
 		web_accessible_resources: [
 			{
 				resources: ['blocked.html'],
