@@ -1,5 +1,5 @@
 import type {Page} from '@playwright/test';
-import {expect, test} from './fixtures';
+import {enableArivuno, expect, test} from './fixtures';
 import {
 	BLOCKED_PAGE_URL,
 	SHORT_URL,
@@ -8,6 +8,10 @@ import {
 	WATCH_URL,
 	YOUTUBE_HOME_URL,
 } from './youtube-fixture';
+
+test.beforeEach(async ({extension}) => {
+	await enableArivuno(extension);
+});
 
 test.describe('Shorts surfaces', () => {
 	for (const surface of SURFACE_CASES) {
@@ -25,7 +29,9 @@ test.describe('Shorts surfaces', () => {
 	}
 });
 
-test('blocks a direct Short before the fixture page opens', async ({page}) => {
+test('redirects a directly loaded Short to the local blocked page', async ({
+	page,
+}) => {
 	await page.goto(YOUTUBE_HOME_URL);
 	await waitForBlockedPage(page, () => page.goto(SHORT_URL));
 

@@ -1,7 +1,7 @@
 # Arivuno
 
 Arivuno is a local-first Chromium extension that removes YouTube Shorts entry
-points and interrupts Shorts pages before the feed opens.
+points and redirects recognized Shorts pages to a local block screen.
 
 ## License
 

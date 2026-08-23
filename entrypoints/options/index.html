@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="color-scheme" content="light dark" />
+		<meta name="manifest.open_in_tab" content="true" />
+		<title>Manage Arivuno</title>
+		<link rel="stylesheet" href="./style.css" />
+		<script type="module" src="./main.ts"></script>
+	</head>
+	<body>
+		<main class="shell">
+			<section id="manage-card" class="card" aria-labelledby="page-title">
+				<div class="brand" aria-label="Arivuno">
+					<img
+						class="brand-mark"
+						src="/icon/48.png"
+						alt=""
+						width="40"
+						height="40"
+					/>
+					<span>Arivuno</span>
+				</div>
+
+				<p class="eyebrow">Local control</p>
+				<h1 id="page-title">Choose when Arivuno runs.</h1>
+				<p id="status" class="status" role="status" aria-live="polite">
+					Checking local activation…
+				</p>
+
+				<section class="disclosure" aria-labelledby="disclosure-title">
+					<h2 id="disclosure-title">Before you enable Arivuno</h2>
+					<p>Arivuno starts off and runs only after you enable it.</p>
+					<p>
+						To hide YouTube Shorts entry points and interrupt Shorts pages,
+						Arivuno will process the following information on youtube.com:
+					</p>
+					<ul>
+						<li>the current YouTube URL;</li>
+						<li>destinations of links on YouTube;</li>
+						<li>visible YouTube page structure; and</li>
+						<li>
+							ordinary click or activation events, only to determine whether the
+							activated element is a Shorts link.
+						</li>
+					</ul>
+					<p>
+						This processing happens locally in your browser and is used only for
+						those features. Arivuno does not retain or automatically transmit
+						this YouTube data.
+					</p>
+					<p>
+						Enabling Arivuno stores one local setting recording that it is
+						enabled and the version of this disclosure. It does not create an
+						activity history.
+					</p>
+					<p>
+						Choose <strong>Enable Arivuno</strong> to agree to this processing
+						and turn on the extension.
+					</p>
+				</section>
+
+				<p id="error" class="error" role="alert" hidden></p>
+
+				<div id="off-actions" class="actions">
+					<button
+						id="enable-button"
+						class="button button-primary"
+						type="button"
+						disabled
+					>
+						Enable Arivuno
+					</button>
+					<button
+						id="not-now-button"
+						class="button button-secondary"
+						type="button"
+						disabled
+					>
+						Not now
+					</button>
+				</div>
+
+				<div id="on-actions" class="actions" hidden>
+					<a
+						class="button button-primary"
+						href="https://www.youtube.com/"
+						target="_blank"
+						rel="noopener noreferrer"
+						>Open YouTube</a
+					>
+					<button
+						id="disable-button"
+						class="button button-secondary"
+						type="button"
+						disabled
+					>
+						Disable Arivuno
+					</button>
+				</div>
+
+				<p id="reload-note" class="note" hidden>
+					Arivuno will run on YouTube tabs opened or reloaded after activation.
+					Reload any YouTube tab that was already open.
+				</p>
+				<p class="privacy-link">
+					<a
+						href="https://arivuno.com/privacy"
+						target="_blank"
+						rel="noopener noreferrer"
+						>Read the privacy policy</a
+					>
+				</p>
+			</section>
+		</main>
+	</body>
+</html>

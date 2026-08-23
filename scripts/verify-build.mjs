@@ -17,12 +17,16 @@ assert.equal(manifest.manifest_version, 3, 'Manifest V3 is required');
 assert.deepEqual(
 	Object.keys(manifest).sort(),
 	[
+		'action',
+		'background',
 		'content_scripts',
 		'description',
 		'host_permissions',
 		'icons',
 		'manifest_version',
+		'minimum_chrome_version',
 		'name',
+		'options_ui',
 		'permissions',
 		'version',
 		'web_accessible_resources',
@@ -31,13 +35,33 @@ assert.deepEqual(
 );
 assert.deepEqual(
 	manifest.permissions ?? [],
-	[],
-	'No API permissions are allowed',
+	['storage', 'scripting'],
+	'Only local activation storage and packaged-script registration are allowed',
 );
 assert.deepEqual(
 	manifest.host_permissions ?? [],
-	[],
-	'No separate host permissions are allowed',
+	['https://www.youtube.com/*'],
+	'Host access must remain limited to YouTube',
+);
+assert.equal(
+	manifest.minimum_chrome_version,
+	'105',
+	'The package must not install without required runtime and CSS support',
+);
+assert.deepEqual(
+	manifest.action,
+	{default_title: 'Manage Arivuno'},
+	'The toolbar action must only open Arivuno management',
+);
+assert.deepEqual(
+	manifest.background,
+	{service_worker: 'background.js'},
+	'The background must remain a single packaged service worker',
+);
+assert.deepEqual(
+	manifest.options_ui,
+	{open_in_tab: true, page: 'options.html'},
+	'Activation management must use the reviewed options tab',
 );
 assert.deepEqual(
 	manifest.icons,
@@ -86,16 +110,8 @@ assert.match(
 
 assert.deepEqual(
 	manifest.content_scripts,
-	[
-		{
-			matches: ['https://www.youtube.com/*'],
-			all_frames: false,
-			run_at: 'document_start',
-			css: ['content-scripts/youtube.css'],
-			js: ['content-scripts/youtube.js'],
-		},
-	],
-	'The content script contains an unexpected capability',
+	[],
+	'No content script may run before affirmative activation',
 );
 
 assert.deepEqual(
@@ -160,6 +176,52 @@ assert.match(
 	'The WXT page-world startup broadcast must be disabled',
 );
 
+const contentScriptStyle = await readFile(
+	resolve(outputDirectory, 'content-scripts/youtube.css'),
+	'utf8',
+);
+assert.match(
+	contentScriptStyle,
+	/html\[data-arivuno-enabled\]/,
+	'YouTube styles must remain inert without the activation marker',
+);
+
+const backgroundSource = await readFile(
+	resolve(outputDirectory, 'background.js'),
+	'utf8',
+);
+for (const requiredRegistrationValue of [
+	'arivuno-youtube',
+	'content-scripts/youtube.js',
+	'content-scripts/youtube.css',
+	'https://www.youtube.com/*',
+]) {
+	assert.ok(
+		backgroundSource.includes(requiredRegistrationValue),
+		`Background registration is missing: ${requiredRegistrationValue}`,
+	);
+}
+
+const optionsPageHtml = await readFile(
+	resolve(outputDirectory, 'options.html'),
+	'utf8',
+);
+assert.match(
+	optionsPageHtml,
+	/>Enable Arivuno</,
+	'The activation page must contain the specific agreeing action',
+);
+assert.match(
+	optionsPageHtml,
+	/current YouTube URL/,
+	'The activation page must disclose URL processing',
+);
+assert.doesNotMatch(
+	optionsPageHtml,
+	/\b(?:src|action|poster|data|ping|formaction)=["'](?:https?:)?\/\//i,
+	'The activation page must not load or submit to remote resources',
+);
+
 const blockedPageHtml = await readFile(
 	resolve(outputDirectory, 'blocked.html'),
 	'utf8',
@@ -191,7 +253,7 @@ for (const file of runtimeFiles.filter((path) => extname(path) === '.css')) {
 }
 
 console.log(
-	'Verified minimal MV3 capabilities, disabled page broadcast, and no direct transport APIs or remote assets.',
+	'Verified activation-gated MV3 capabilities, disabled page broadcast, and no direct transport APIs or remote assets.',
 );
 
 async function listFiles(directory) {
