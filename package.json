@@ -10,7 +10,7 @@
 		"build": "wxt build",
 		"postinstall": "wxt prepare",
 		"typecheck": "tsc --noEmit",
-		"test": "vitest run",
+		"test": "vitest run && node --test tests/dependency-audit.test.mjs",
 		"test:watch": "vitest",
 		"test:e2e": "bun run build && playwright test",
 		"test:e2e:built": "playwright test",
@@ -31,14 +31,14 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "1.62.1",
-		"happy-dom": "20.11.2",
+		"happy-dom": "21.0.4",
 		"oxlint": "1.78.0",
 		"oxlint-tsgolint": "7.0.2001",
 		"prettier": "3.9.6",
 		"stylelint": "17.14.1",
 		"stylelint-config-standard": "40.0.0",
 		"typescript": "7.0.2",
-		"vitest": "4.1.10",
+		"vitest": "4.1.12",
 		"wxt": "0.21.3"
 	}
 }
